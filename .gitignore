@@ -3,7 +3,13 @@ Unity generated
 ===============
 Temp/
 Library/
-
+1_Data/
+1.exe
+Assets/Fonts/
+Assets/Lobby/
+Assets/SampleScenes/
+UnityPlayer.dll
+WinPixEventRuntime.dll
 =====================================
 Visual Studio / MonoDevelop generated
 =====================================
