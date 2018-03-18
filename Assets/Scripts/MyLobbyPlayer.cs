@@ -1,16 +1,39 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
-public class MyLobbyPlayer : MonoBehaviour {
+public class MyLobbyPlayer : NetworkLobbyPlayer {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public Button readyBttn;
+
+    private void Start()
+    {
+        DontDestroyOnLoad(this);
+
+        
+    }
+
+    public override void OnClientEnterLobby()
+    {
+        base.OnClientEnterLobby();
+
+        readyToBegin = false;
+
+        readyBttn = GameObject.Find("StartGameBttn").GetComponent<Button>();
+
+        readyBttn.onClick.AddListener(PlayerReady);
+    }
+
+    public void PlayerReady()
+    {
+
+        if (isLocalPlayer)
+        {
+            SendReadyToBeginMessage();
+        }
+
+    }
+    
+
 }
+

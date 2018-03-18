@@ -1,18 +1,29 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-
+using UnityEngine.UI;
 
 public class PlayerScript : NetworkBehaviour {
 
-    // GameObject EmptyField
-    public GameObject Field;
+    private Text turnLeftTimeLabel;
+
+    private Text whoTurnLabel;
 
     // value set who turn first
     [SyncVar (hook = "SetPlayerIndex")] public int playerIndex;
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(this);
+
+        turnLeftTimeLabel = GameObject.Find("TurnLabel").GetComponent<Text>(); 
+        whoTurnLabel = GameObject.Find("WhoTurnLabel").GetComponent<Text>(); 
+        
+    }
+    
     private void Start()
     {
-        if(!isLocalPlayer)
+
+        if (!isLocalPlayer)
             return;
 
         if (isServer)
@@ -21,16 +32,16 @@ public class PlayerScript : NetworkBehaviour {
             playerIndex = 1;
             return;
         }
+
         Debug.LogError("0");
         playerIndex = 0;
-
-        
     }
 
     private void SetPlayerIndex(int _index)
     {
-        playerIndex = _index;
+
     }
+
 
     private void Update()
     {
@@ -40,8 +51,12 @@ public class PlayerScript : NetworkBehaviour {
 
         if (GameController.instance.PlayerSide == playerIndex)
         {
-            if (Input.GetMouseButtonDown(0))
+            whoTurnLabel.color = Color.green;
+            whoTurnLabel.text = "Your Turn";
 
+            turnLeftTimeLabel.text = "Time Left: " + GameController.instance.TimeLeft;
+
+            if (Input.GetMouseButtonDown(0))
             {
 
                 // ClickPotion to WorldPotion
@@ -62,6 +77,12 @@ public class PlayerScript : NetworkBehaviour {
 
             }
         }
+        else {
+            whoTurnLabel.color = Color.red;
+            whoTurnLabel.text = "Opponents Turn";
+
+            turnLeftTimeLabel.text = "Time Left: " + GameController.instance.TimeLeft;
+        }
     }
 
     /// <summary>
@@ -71,7 +92,7 @@ public class PlayerScript : NetworkBehaviour {
     [Command]
     void CmdPlayerTurn(int fieldIndex, int _playerId)
     {
-        GameController.instance.SetField(fieldIndex, _playerId);
+        GameController.instance.SetChoosenField(fieldIndex, _playerId);
     }
 
 }

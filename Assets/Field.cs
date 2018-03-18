@@ -31,10 +31,9 @@ public class Field : NetworkBehaviour
 
     public void Click(int playerIndex)
     {
-        Debug.LogError("Click" + playerIndex);
+        Debug.LogError("Click" + playerIndex +" "+ Owner);
 
         Owner = playerIndex;
-
 
         // disable Collider when player Click this field isNotEmpty
         spriteCollider.enabled = false;

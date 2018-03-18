@@ -1,55 +1,41 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-    
+using UnityEngine.UI;
+
 public class MyLobbyManager : NetworkLobbyManager {
+
+    static public MyLobbyManager s_Singleton;
+
+    NetworkClient networkClient;
 
     private void Start()
     {
+        s_Singleton = this;
 
-#if UNITY_EDITOR
-        StartHost();
+        networkClient = StartHost();
 
-#else
-        networkAddress = "127.0.0.1";
-        StartClient();
-#endif
+        if (networkClient != null)
+        {
+            Debug.LogError("Created");
+        }
+        else
+        {
+            networkAddress = "127.0.0.1";
+            StartClient();
+        }
+
     }
-    
-    public override void OnClientConnect(NetworkConnection conn)
-    {
-        TryToAddPlayer();
-    }
 
-    //int count = 0;
-
-
-
-    public override void OnLobbyServerPlayersReady()
-    {
-        Debug.Log("Ready");
-
-        ServerChangeScene(playScene);
-        
-        //base.OnLobbyServerPlayersReady();
-    }
-    
-
-    //public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
+    //public override void OnClientConnect(NetworkConnection conn)
     //{
-
-    //    return null;// base.OnLobbyServerCreateGamePlayer(conn, playerControllerId);
+    //    TryToAddPlayer();
     //}
 
-    //public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+
+    //public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
     //{
-    //    //base.OnServerAddPlayer(conn, playerControllerId);
-    //    GameObject player = Instantiate().gameObject;
-    //    NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
-
-    //    player.GetComponent<PlayerScript>().playerIndex = count;
-    //    count++;
-
-    //    Debug.Log("Player Add");
+    //    return base.OnLobbyServerCreateLobbyPlayer(conn, playerControllerId);
     //}
 
 }
+
