@@ -956,7 +956,6 @@ MonoBehaviour:
   m_LobbyScene: MainMenu
   m_PlayScene: GameField
   lobbySlots: []
-  PlayerNameField: {fileID: 1317261155}
 --- !u!4 &1105965977
 Transform:
   m_ObjectHideFlags: 0

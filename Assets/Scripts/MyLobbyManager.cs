@@ -6,11 +6,9 @@ public class MyLobbyManager : NetworkLobbyManager {
 
     static public MyLobbyManager s_Singleton;
 
-    public InputField PlayerNameField;
-
-    string PlayerName;
-
     NetworkClient networkClient;
+
+    int _playerNumber = 0;
 
     private void Start()
     {
@@ -27,13 +25,18 @@ public class MyLobbyManager : NetworkLobbyManager {
             networkAddress = "127.0.0.1";
             StartClient();
         }
-        PlayerNameField.onValueChange.AddListener(SetPlayerName);
 
     }
 
-    private void SetPlayerName(string _name)
+    public void OnPlayersNumberModified(int count)
     {
-        PlayerName = _name;
+        _playerNumber += count;
+
+        int localPlayerCount = 0;
+        foreach (PlayerController p in ClientScene.localPlayers)
+            localPlayerCount += (p == null || p.playerControllerId == -1) ? 0 : 1;
+
+        //addPlayerButton.SetActive(localPlayerCount < maxPlayersPerConnection && _playerNumber < maxPlayers);
     }
 
 
@@ -43,29 +46,36 @@ public class MyLobbyManager : NetworkLobbyManager {
     //}
 
     int count;
+    int CountName = 0;
+
     public override void OnLobbyClientEnter()
     {
-        if (PlayerNameField == null)
-        {
-            PlayerNameField = FindObjectOfType<InputField>();
-            PlayerNameField.onValueChange.AddListener(SetPlayerName);
-        }
-
         count = Random.Range(0,2);
+        CountName = 0;
+       
         base.OnLobbyClientEnter();
     }
 
     public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
     {
         GameObject player = Instantiate(gamePlayerPrefab, Vector3.zero, Quaternion.identity);
-        player.name = PlayerName;
-        Debug.LogError("Name " + PlayerName);
-        player.GetComponent<PlayerScript>().PlayerName = PlayerNameField.text;
-        player.GetComponent<PlayerScript>().playerIndex = count;
 
-        count = count == 1 ? 0 : 1;
+        //for (int i = 0; i < lobbySlots.Length; i++)
+        //{
+        //if (lobbySlots[i].playerControllerId == playerControllerId)
+        //{
 
-        NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+
+        Debug.LogError(CountName + " " + (lobbySlots[CountName] as MyLobbyPlayer).PlayerName);
+        //}
+        //}
+        player.name = (lobbySlots[CountName] as MyLobbyPlayer).PlayerName;
+                player.GetComponent<PlayerScript>().PlayerName = player.name;
+                player.GetComponent<PlayerScript>().playerIndex = count;
+
+                count = count == 1 ? 0 : 1;
+        CountName++;
+                //NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
         return player;
     }
     

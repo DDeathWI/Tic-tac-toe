@@ -86,3 +86,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowLobbyGUI: 0
   readyBttn: {fileID: 0}
+  PlayerNameField: {fileID: 0}
+  PlayerName: 
