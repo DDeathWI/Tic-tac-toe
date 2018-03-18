@@ -11,30 +11,30 @@ public class PlayerScript : NetworkBehaviour {
     // value set who turn first
     [SyncVar (hook = "SetPlayerIndex")] public int playerIndex;
 
+    public string PlayerName; 
+
     private void Awake()
     {
-        DontDestroyOnLoad(this);
-
         turnLeftTimeLabel = GameObject.Find("TurnLabel").GetComponent<Text>(); 
         whoTurnLabel = GameObject.Find("WhoTurnLabel").GetComponent<Text>(); 
-        
     }
     
+
     private void Start()
     {
 
-        if (!isLocalPlayer)
-            return;
+        //if (!isLocalPlayer)
+        //    return;
 
-        if (isServer)
-        {
-            Debug.LogError("1");
-            playerIndex = 1;
-            return;
-        }
+        //if (isServer)
+        //{
+        //    Debug.LogError("1");
+        //    playerIndex = 1;
+        //    return;
+        //}
 
-        Debug.LogError("0");
-        playerIndex = 0;
+        //Debug.LogError("0");
+        //playerIndex = 0;
     }
 
     private void SetPlayerIndex(int _index)
