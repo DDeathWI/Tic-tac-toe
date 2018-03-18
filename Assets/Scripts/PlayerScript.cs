@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
@@ -9,43 +10,30 @@ public class PlayerScript : NetworkBehaviour {
     private Text whoTurnLabel;
 
     // value set who turn first
-    [SyncVar (hook = "SetPlayerIndex")] public int playerIndex;
+    [SyncVar(hook = "SetPlayerIndex")] public int playerIndex;
 
-    [SyncVar] public string PlayerName = "default"; 
+    [SyncVar] public string PlayerName = "default";
 
     private void Awake()
     {
-        turnLeftTimeLabel = GameObject.Find("TurnLabel").GetComponent<Text>(); 
-        whoTurnLabel = GameObject.Find("WhoTurnLabel").GetComponent<Text>(); 
+        turnLeftTimeLabel = GameObject.Find("TurnLabel").GetComponent<Text>();
+        whoTurnLabel = GameObject.Find("WhoTurnLabel").GetComponent<Text>();
+
     }
+
+    private IEnumerator Start()
+    {
+        yield return new WaitForSecondsRealtime(1);
+        if(isLocalPlayer)
+            CmdAddToPlayerDictionary();
+    }
+
 
     private void SetPlayerIndex(int _index)
     {
-
+        
     }
-
-    private void Start()
-    {
-        //if (!isLocalPlayer)
-        //{
-        //    gameObject.name = PlayerName;
-        //}
-
-        //    return;
-
-        //if (isServer)
-        //{
-        //    Debug.LogError("1");
-        //    playerIndex = 1;
-        //    return;
-        //}
-
-        //Debug.LogError("0");
-        //playerIndex = 0;
-    }
-
     
-
 
     private void Update()
     {
@@ -97,6 +85,12 @@ public class PlayerScript : NetworkBehaviour {
     void CmdPlayerTurn(int fieldIndex, int _playerId)
     {
         GameController.instance.SetChoosenField(fieldIndex, _playerId);
+    }
+
+    [Command]
+    void CmdAddToPlayerDictionary()
+    {
+        GameController.instance.AddPlayerToDictionary(playerIndex, PlayerName);
     }
 
 }

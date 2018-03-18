@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class GameController : NetworkBehaviour {
 
@@ -27,11 +27,19 @@ public class GameController : NetworkBehaviour {
 
     public int TurnTime = 10;
 
+    public GameObject ResultPanel;
+
+    public Button BackToMenuBttn;
+
     private Coroutine gameResult;
 
-    private string gameResultMsg;
+    public Text ResultLabel;
+
+    [SyncVar(hook = "ChangeResultLabel")] private string gameResultMsg;
 
     [SyncVar(hook = "GameOver")] private bool gameOver;
+
+    Dictionary<int, string> playersDictionary;
 
     private void CalculateTimeLeft(float _time)
     {
@@ -41,7 +49,7 @@ public class GameController : NetworkBehaviour {
         {
 
             StartTime(Time.timeSinceLevelLoad);
-            SetRandomField(PlayerSide);
+            RpcSetRandomField(PlayerSide);
         }
     }
 
@@ -70,6 +78,20 @@ public class GameController : NetworkBehaviour {
         if (instance == null)
         {
             instance = this;
+
+            playersDictionary = new Dictionary<int, string>();
+            BackToMenuBttn.onClick.AddListener(BackToMenu);
+        }
+    }
+
+    private void BackToMenu()
+    {
+        if (isServer)
+        {
+            MyLobbyManager.s_Singleton.ServerReturnToLobby();
+        }
+        else {
+            MyLobbyManager.s_Singleton.SendReturnToLobby();
         }
     }
 
@@ -85,14 +107,14 @@ public class GameController : NetworkBehaviour {
 
     public void SetField(int index, int _side)
     {
-        if(gameOver)
+        if (gameOver)
             return;
 
         fieldsScript[index].Click(_side);
         emptyFields.Remove(fieldsScript[index]);
 
         turnCounter++;
-        
+
         Calculate();
 
         SetSide(_side == 1 ? 0 : 1);
@@ -100,11 +122,15 @@ public class GameController : NetworkBehaviour {
 
     public void SetChoosenField(int index, int _side)
     {
-        SetField(index,_side);
+        SetField(index, _side);
     }
-
-    public void SetRandomField(int _side)
+    
+    [ClientRpc]
+    public void RpcSetRandomField(int _side)
     {
+        if (gameOver)
+            return;
+
         if (!isServer)
             return;
 
@@ -113,6 +139,14 @@ public class GameController : NetworkBehaviour {
         SetField(emptyFields[randomTurnIndex].Index, _side);
     }
 
+    public void AddPlayerToDictionary(int _side, string playerName)
+    {
+        if (!isServer)
+            return;
+
+        Debug.LogError(_side + " " + playerName);
+        playersDictionary.Add(_side, playerName);
+    }
 
     // Create GameField Field 
     // Spawn them on the Server
@@ -154,14 +188,6 @@ public class GameController : NetworkBehaviour {
 
     }
 
-    // Player Turn
-    //public void Turn(int fieldIndex)
-    //{
-    //    fieldsScript[fieldIndex].Owner = PlayerSide;
-
-    //    Calculate();    
-    //}
-    
     // Check if Player Win
     private void Calculate()
     {
@@ -222,30 +248,29 @@ public class GameController : NetworkBehaviour {
         StartTime(Time.timeSinceLevelLoad);
 
     }
-
-    private IEnumerator ShowResult()
-    {
-        yield return new WaitForSecondsRealtime(1.5f);
-
-        MyLobbyManager.s_Singleton.ServerReturnToLobby();
-    }
+    
 
     private void HaveWinner()
     {
-        gameResultMsg = "Win" + PlayerSide;
+
+        gameResultMsg = "Win " + playersDictionary[PlayerSide] + "\n " + Time.timeSinceLevelLoad +"sec";
         gameOver = true;
     }
-    
+
+    private void ChangeResultLabel(string str)
+    {
+        ResultLabel.text = str;
+    }
 
     private void NoOneWin()
     {
-        gameResultMsg = "No Winner";
+        gameResultMsg = "No Winner" + "\n " + Time.timeSinceLevelLoad + "sec";
         gameOver = true;
     }
 
     private void GameOver(bool isGameOver)
     {
-        gameResult = StartCoroutine(ShowResult());
+        ResultPanel.SetActive(isGameOver);
     }
 
 }
