@@ -35,8 +35,6 @@ public class GameController : NetworkBehaviour {
 
     public Text ResultLabel;
 
-    [SyncVar(hook = "ChangeResultLabel")] private string gameResultMsg;
-
     [SyncVar(hook = "GameOver")] private bool gameOver;
 
     Dictionary<int, string> playersDictionary;
@@ -113,11 +111,7 @@ public class GameController : NetworkBehaviour {
         fieldsScript[index].Click(_side);
         emptyFields.Remove(fieldsScript[index]);
 
-        turnCounter++;
-
         Calculate();
-
-        SetSide(_side == 1 ? 0 : 1);
     }
 
     public void SetChoosenField(int index, int _side)
@@ -156,7 +150,6 @@ public class GameController : NetworkBehaviour {
         fieldsScript = new List<Field>();
         emptyFields = new List<Field>();
 
-        gameResultMsg = "";
         // 
         turnCounter = 0;
 
@@ -239,11 +232,16 @@ public class GameController : NetworkBehaviour {
             return;
         }
 
+        turnCounter++;
+
         if (turnCounter == 9)
         {
             NoOneWin();
             return;
         }
+
+
+        SetSide(PlayerSide == 1 ? 0 : 1);
 
         StartTime(Time.timeSinceLevelLoad);
 
@@ -252,9 +250,40 @@ public class GameController : NetworkBehaviour {
 
     private void HaveWinner()
     {
+        RpcSetRoundResults();
 
-        gameResultMsg = "Win " + playersDictionary[PlayerSide] + "\n " + Time.timeSinceLevelLoad +"sec";
+        //gameResultMsg = "Win " + playersDictionary[PlayerSide] + "\n " + Time.timeSinceLevelLoad +"sec";
         gameOver = true;
+    }
+
+    [ClientRpc]
+    private void RpcSetRoundResults()
+    {
+
+        PlayerScript[] playersScript = FindObjectsOfType<PlayerScript>();
+
+        for (int i = 0; i < playersScript.Length; i++)
+        {
+            playersScript[i].RoundResult = PlayerSide == playersScript[i].playerIndex ? 1 : 0;
+            playersScript[i].ResultLabel = ResultLabel;
+            playersScript[i].ShowResultLabel((int)Time.timeSinceLevelLoad);
+        }
+
+    }
+
+    [ClientRpc]
+    private void RpcSetNoBodyWin()
+    {
+
+        PlayerScript[] playersScript = FindObjectsOfType<PlayerScript>();
+
+        for (int i = 0; i < playersScript.Length; i++)
+        {
+            playersScript[i].RoundResult = 2;
+            playersScript[i].ResultLabel = ResultLabel;
+            playersScript[i].ShowResultLabel((int)Time.timeSinceLevelLoad);
+        }
+
     }
 
     private void ChangeResultLabel(string str)
@@ -264,7 +293,7 @@ public class GameController : NetworkBehaviour {
 
     private void NoOneWin()
     {
-        gameResultMsg = "No Winner" + "\n " + Time.timeSinceLevelLoad + "sec";
+        RpcSetNoBodyWin();
         gameOver = true;
     }
 

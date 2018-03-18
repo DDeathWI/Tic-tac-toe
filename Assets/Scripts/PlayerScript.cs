@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -9,16 +10,31 @@ public class PlayerScript : NetworkBehaviour {
 
     private Text whoTurnLabel;
 
+    public Text ResultLabel;
+
     // value set who turn first
     [SyncVar(hook = "SetPlayerIndex")] public int playerIndex;
 
     [SyncVar] public string PlayerName = "default";
 
+    [SyncVar (hook = "ShowResult")] public int RoundResult = 3;
+
+    Dictionary<int, string> resultState;
+
+    public void ShowResultLabel(int time)
+    { 
+        if(isLocalPlayer)
+        ResultLabel.text = resultState[RoundResult] +"\n TimeSpend: "+ time+"sec";
+    }
+
     private void Awake()
     {
         turnLeftTimeLabel = GameObject.Find("TurnLabel").GetComponent<Text>();
         whoTurnLabel = GameObject.Find("WhoTurnLabel").GetComponent<Text>();
-
+        resultState = new Dictionary<int, string>();
+        resultState.Add(0, "You Lose");
+        resultState.Add(1, "You Win");
+        resultState.Add(2, "A Draw");
     }
 
     private IEnumerator Start()
@@ -31,9 +47,14 @@ public class PlayerScript : NetworkBehaviour {
 
     private void SetPlayerIndex(int _index)
     {
-        
+
     }
-    
+
+
+    private void ShowResult(int res)
+    {
+        RoundResult = res;
+    }
 
     private void Update()
     {
