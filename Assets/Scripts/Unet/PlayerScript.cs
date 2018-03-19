@@ -19,6 +19,9 @@ public class PlayerScript : NetworkBehaviour {
 
     [SyncVar] public string PlayerName = "default";
 
+    [SyncVar] public string EnemyName = "default";
+
+
     [SyncVar (hook = "ShowResult")] public int RoundResult = 3;
 
     private int SpendTime;
@@ -32,7 +35,7 @@ public class PlayerScript : NetworkBehaviour {
             SpendTime = time;
             ResultLabel.text = resultState[RoundResult] + "\n TimeSpend: " + SpendTime + "sec";
 
-            XMLController.instance.resultContainer.Results.Add(new Result(resultState[RoundResult],SpendTime));
+            XMLController.instance.resultContainer.Results.Add(new Result(PlayerName, EnemyName, resultState[RoundResult],SpendTime));
             string server;
             if (isServer) {
                 server = "Host";

@@ -10,6 +10,8 @@ public class ShowStatistics : MonoBehaviour {
         {
             ResultHolder resultHolder = Instantiate(RoundPrefab, transform).GetComponent<ResultHolder>();
 
+            resultHolder.PlayerName.text = result.PlayerName;
+            resultHolder.EnemyName.text = result.EnemyName;
             resultHolder.Result.text = result.result;
             resultHolder.SpendTime.text = result.SpendTime.ToString();
         }

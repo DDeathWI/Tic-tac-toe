@@ -278,6 +278,7 @@ public class GameController : NetworkBehaviour {
 
         for (int i = 0; i < playersScript.Length; i++)
         {
+            playersScript[i].EnemyName = i == 1 ? playersScript[0].PlayerName : playersScript[1].PlayerName;
             playersScript[i].RoundResult = PlayerSide == playersScript[i].playerIndex ? 1 : 0;
             playersScript[i].ResultLabel = ResultLabel;
             playersScript[i].ShowResultLabel(spendTime);
