@@ -56,9 +56,10 @@ MonoBehaviour:
   EmptyField: {fileID: 1804353581776878, guid: a11edfe0901b5e14ebb09c92455005d5, type: 2}
   TimeStart: 0
   TimeLeft: 0
-  TurnTime: 10
+  TurnTime: 30
   ResultPanel: {fileID: 0}
   BackToMenuBttn: {fileID: 0}
+  ResultLabel: {fileID: 0}
 --- !u!114 &114538383210357236
 MonoBehaviour:
   m_ObjectHideFlags: 1

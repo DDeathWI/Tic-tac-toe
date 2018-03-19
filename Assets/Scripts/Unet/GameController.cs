@@ -39,6 +39,8 @@ public class GameController : NetworkBehaviour {
 
     Dictionary<int, string> playersDictionary;
 
+    [SyncVar(hook = "RpcRoundTime")] private int spendTime;
+
     private void CalculateTimeLeft(float _time)
     {
         TimeLeft = _time;
@@ -82,6 +84,12 @@ public class GameController : NetworkBehaviour {
         }
     }
 
+    [ClientRpc]
+    private void RpcRoundTime(int time)
+    {
+        spendTime = time;
+    }
+
     private void BackToMenu()
     {
         if (isServer)
@@ -106,6 +114,10 @@ public class GameController : NetworkBehaviour {
     public void SetField(int index, int _side)
     {
         if (gameOver)
+            return;
+
+        // fast fix
+        if (fieldsScript[index].Owner != -1)
             return;
 
         fieldsScript[index].Click(_side);
@@ -250,6 +262,8 @@ public class GameController : NetworkBehaviour {
 
     private void HaveWinner()
     {
+        spendTime = (int)Time.timeSinceLevelLoad;
+
         RpcSetRoundResults();
 
         //gameResultMsg = "Win " + playersDictionary[PlayerSide] + "\n " + Time.timeSinceLevelLoad +"sec";
@@ -266,22 +280,22 @@ public class GameController : NetworkBehaviour {
         {
             playersScript[i].RoundResult = PlayerSide == playersScript[i].playerIndex ? 1 : 0;
             playersScript[i].ResultLabel = ResultLabel;
-            playersScript[i].ShowResultLabel((int)Time.timeSinceLevelLoad);
+            playersScript[i].ShowResultLabel(spendTime);
         }
 
     }
 
     [ClientRpc]
-    private void RpcSetNoBodyWin()
+    private void RpcSetDraw()
     {
-
+        
         PlayerScript[] playersScript = FindObjectsOfType<PlayerScript>();
 
         for (int i = 0; i < playersScript.Length; i++)
         {
             playersScript[i].RoundResult = 2;
             playersScript[i].ResultLabel = ResultLabel;
-            playersScript[i].ShowResultLabel((int)Time.timeSinceLevelLoad);
+            playersScript[i].ShowResultLabel(spendTime);
         }
 
     }
@@ -293,12 +307,14 @@ public class GameController : NetworkBehaviour {
 
     private void NoOneWin()
     {
-        RpcSetNoBodyWin();
+        spendTime = (int)Time.timeSinceLevelLoad;
+        RpcSetDraw();
         gameOver = true;
     }
 
     private void GameOver(bool isGameOver)
     {
+
         ResultPanel.SetActive(isGameOver);
     }
 

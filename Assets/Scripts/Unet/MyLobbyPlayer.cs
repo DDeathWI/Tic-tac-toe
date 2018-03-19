@@ -19,6 +19,9 @@ public class MyLobbyPlayer : NetworkLobbyPlayer {
     {
         base.OnClientEnterLobby();
 
+        
+
+
         if (MyLobbyManager.s_Singleton != null) MyLobbyManager.s_Singleton.OnPlayersNumberModified(1);
 
         readyToBegin = false;
@@ -29,6 +32,11 @@ public class MyLobbyPlayer : NetworkLobbyPlayer {
 
         PlayerNameField = GameObject.Find("PlayerNameField").GetComponent<InputField>();
 
+        if (isLocalPlayer)
+        {
+            if (PlayerName != null && PlayerNameField != null) ;
+            PlayerNameField.text = PlayerName;
+        }
         //PlayerNameField.onValueChange.RemoveAllListeners();
         PlayerNameField.onValueChange.AddListener(SetPlayerName);
     }

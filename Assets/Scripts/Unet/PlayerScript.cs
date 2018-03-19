@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+
 
 public class PlayerScript : NetworkBehaviour {
 
@@ -19,12 +21,27 @@ public class PlayerScript : NetworkBehaviour {
 
     [SyncVar (hook = "ShowResult")] public int RoundResult = 3;
 
+    private int SpendTime;
+
     Dictionary<int, string> resultState;
 
     public void ShowResultLabel(int time)
-    { 
-        if(isLocalPlayer)
-        ResultLabel.text = resultState[RoundResult] +"\n TimeSpend: "+ time+"sec";
+    {
+        if (isLocalPlayer)
+        {
+            SpendTime = time;
+            ResultLabel.text = resultState[RoundResult] + "\n TimeSpend: " + SpendTime + "sec";
+
+            XMLController.instance.resultContainer.Results.Add(new Result(resultState[RoundResult],SpendTime));
+            string server;
+            if (isServer) {
+                server = "Host";
+                    }
+            else {
+                server = "Client";
+            }
+            XMLController.instance.resultContainer.Save(Path.Combine(Application.persistentDataPath, server + "Results.xml"));
+        }
     }
 
     private void Awake()
@@ -32,9 +49,9 @@ public class PlayerScript : NetworkBehaviour {
         turnLeftTimeLabel = GameObject.Find("TurnLabel").GetComponent<Text>();
         whoTurnLabel = GameObject.Find("WhoTurnLabel").GetComponent<Text>();
         resultState = new Dictionary<int, string>();
-        resultState.Add(0, "You Lose");
-        resultState.Add(1, "You Win");
-        resultState.Add(2, "A Draw");
+        resultState.Add(0, "Lose");
+        resultState.Add(1, "Win");
+        resultState.Add(2, "Draw");
     }
 
     private IEnumerator Start()
